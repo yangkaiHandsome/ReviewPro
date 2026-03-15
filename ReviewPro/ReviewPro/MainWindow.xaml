@@ -1,0 +1,329 @@
+<Window x:Class="ReviewPro.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="ReviewPro - AI Document Audit"
+        Height="920"
+        Width="1500"
+        MinHeight="760"
+        MinWidth="1240"
+        Background="#F3F6FA"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+    <Window.Resources>
+        <SolidColorBrush x:Key="PanelBrush" Color="#FAFCFF"/>
+        <SolidColorBrush x:Key="CardBrush" Color="White"/>
+        <SolidColorBrush x:Key="BorderBrushSoft" Color="#D8E0EB"/>
+        <SolidColorBrush x:Key="BrandBrush" Color="#0E6BA8"/>
+        <Style TargetType="Border" x:Key="PanelCardStyle">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="14"/>
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="8"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="FontFamily" Value="Bahnschrift"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Background" Value="#ECF3FB"/>
+            <Setter Property="BorderBrush" Value="#B9D0EA"/>
+            <Setter Property="Foreground" Value="#16324A"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Bahnschrift"/>
+            <Setter Property="Foreground" Value="#20374B"/>
+        </Style>
+        <Style x:Key="AuditStatusTextStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Bahnschrift"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#355A7A"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="pass">
+                    <Setter Property="Foreground" Value="#1E8E3E"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="fail">
+                    <Setter Property="Foreground" Value="#C62828"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="PASS">
+                    <Setter Property="Foreground" Value="#1E8E3E"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="FAIL">
+                    <Setter Property="Foreground" Value="#C62828"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#EEF4FB" Offset="0"/>
+                <GradientStop Color="#F8FBFE" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Margin="16,14,16,8"
+                Padding="16"
+                CornerRadius="18"
+                Background="#FFFFFF"
+                BorderBrush="#D5E1ED"
+                BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Vertical">
+                    <TextBlock FontSize="28" FontWeight="Bold" Foreground="#123A5A" Text="AI Document Audit Workbench"/>
+                   
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Settings"
+                            Click="SettingsButton_Click"
+                            Background="#0E6BA8"
+                            Foreground="White"
+                            BorderBrush="#0D5E94"/>
+                    <Button Content="Health Check" Click="HealthCheckButton_Click"/>
+                    <TextBlock x:Name="BackendStatusTextBlock"
+                               VerticalAlignment="Center"
+                               Margin="10,0,0,0"
+                               FontWeight="SemiBold"
+                               Foreground="#8A2F2F"
+                               Text="Offline"/>
+                    <TextBlock x:Name="BackendHintTextBlock"
+                               VerticalAlignment="Center"
+                               Margin="12,0,0,0"
+                               Foreground="#5E7388"
+                               Text=""/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1" Margin="12,0,12,12" FontFamily="Bahnschrift">
+            <TabItem Header="Document Audit">
+                <Grid Margin="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="520"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource PanelCardStyle}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top">
+                                <TextBlock FontSize="18" FontWeight="Bold" Text="Documents"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,8">
+                                    <Button Content="Upload" Click="UploadButton_Click" Background="#0E6BA8" Foreground="White" BorderBrush="#0D5E94"/>
+                                    <Button Content="Remove" Click="DeleteDocumentButton_Click"/>
+                                    <Button Content="Refresh" Click="RefreshDocumentsButton_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <ListBox x:Name="DocumentsListBox"
+                                     SelectionChanged="DocumentsListBox_SelectionChanged"
+                                     BorderThickness="0"
+                                     Background="Transparent">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,4"
+                                                Padding="10"
+                                                Background="#F5FAFF"
+                                                BorderBrush="#D7E6F5"
+                                                BorderThickness="1"
+                                                CornerRadius="10">
+                                            <StackPanel>
+                                                <TextBlock FontWeight="SemiBold" Text="{Binding Filename}" TextWrapping="Wrap"/>
+                                                <TextBlock Margin="0,4,0,0" FontSize="12" Foreground="#4C6278" Text="{Binding Summary}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource PanelCardStyle}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10" VerticalAlignment="Center">
+                                <TextBlock FontSize="18" FontWeight="Bold" Text="Preview"/>
+                                <Button Margin="14,0,0,0" Content="Prev" Click="PrevPageButton_Click"/>
+                                <Button Content="Next" Click="NextPageButton_Click"/>
+                                <Button Margin="14,0,0,0" Content="-" Click="ZoomOutButton_Click"/>
+                                <Button Content="100%" Click="ResetZoomButton_Click"/>
+                                <Button Content="+" Click="ZoomInButton_Click"/>
+                                <TextBlock x:Name="ZoomTextBlock"
+                                           Margin="8,0,0,0"
+                                           VerticalAlignment="Center"
+                                           FontWeight="SemiBold"
+                                           Foreground="#355A7A"
+                                           Text="100%"/>
+                                <TextBlock x:Name="CurrentPageTextBlock"
+                                           Margin="10,0,0,0"
+                                           VerticalAlignment="Center"
+                                           FontWeight="SemiBold"
+                                           Foreground="#355A7A"
+                                           Text="Page - / -"/>
+                            </StackPanel>
+
+                            <Border Background="#F8FBFF" BorderBrush="#DAE5F1" BorderThickness="1" CornerRadius="10">
+                                <ScrollViewer x:Name="PreviewScrollViewer"
+                                              HorizontalScrollBarVisibility="Auto"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <Grid x:Name="PreviewGrid">
+                                        <Grid.LayoutTransform>
+                                            <ScaleTransform x:Name="PreviewScaleTransform" ScaleX="1" ScaleY="1"/>
+                                        </Grid.LayoutTransform>
+                                        <Image x:Name="PagePreviewImage" Stretch="None"/>
+                                        <Canvas x:Name="PagePreviewCanvas" IsHitTestVisible="False"/>
+                                    </Grid>
+                                </ScrollViewer>
+                            </Border>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource PanelCardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel>
+                                <TextBlock FontSize="18" FontWeight="Bold" Text="Audit Runner"/>
+                                <TextBlock Margin="0,8,0,4" Text="Strategy"/>
+                                <ComboBox x:Name="AuditStrategyComboBox" DisplayMemberPath="Summary" MinHeight="32"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <Button Content="Refresh Strategies" Click="RefreshStrategiesButton_Click"/>
+                                    <Button Content="Run Audit"
+                                            Click="RunAuditButton_Click"
+                                            Background="#0E6BA8"
+                                            Foreground="White"
+                                            BorderBrush="#0D5E94"/>
+                                    <Button Content="Retry" Click="RetryAuditButton_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                                <TextBlock FontWeight="SemiBold" Text="Progress"/>
+                                <ProgressBar x:Name="AuditProgressBar" Height="16" Minimum="0" Maximum="100" Value="0"/>
+                                <TextBlock x:Name="AuditStatusTextBlock"
+                                           Margin="0,5,0,0"
+                                           FontSize="12"
+                                           Foreground="#4D6174"
+                                           Text="Idle"/>
+                            </StackPanel>
+
+                            <TextBlock Grid.Row="2" Margin="0,14,0,6" FontWeight="SemiBold" Text="Audit Results"/>
+                            <ListBox Grid.Row="3"
+                                     x:Name="AuditResultsListBox"
+                                     SelectionChanged="AuditResultsListBox_SelectionChanged"
+                                     BorderThickness="0"
+                                     Background="Transparent">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,4"
+                                                Padding="10"
+                                                Background="#F7FAFD"
+                                                BorderBrush="#D6E2EE"
+                                                BorderThickness="1"
+                                                CornerRadius="10">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Style="{StaticResource AuditStatusTextStyle}"
+                                                               Text="{Binding StatusLabel}"/>
+                                                    <TextBlock Margin="8,0,0,0"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="#355A7A"
+                                                               Text="{Binding Page, StringFormat=P{0}}"/>
+                                                </StackPanel>
+                                                <TextBlock Margin="0,4,0,0" Text="{Binding Content}" TextWrapping="Wrap" FontSize="12"/>
+                                                <TextBlock Margin="0,4,0,0" Text="{Binding Suggestion}" TextWrapping="Wrap" FontSize="12" Foreground="#556A7F"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Strategy Config">
+                <Grid Margin="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="340"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource PanelCardStyle}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top">
+                                <TextBlock FontSize="18" FontWeight="Bold" Text="Strategies"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,8">
+                                    <Button Content="New" Click="NewStrategyButton_Click" Background="#0E6BA8" Foreground="White" BorderBrush="#0D5E94"/>
+                                    <Button Content="Delete" Click="DeleteStrategyButton_Click"/>
+                                    <Button Content="Refresh" Click="RefreshStrategiesButton_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <ListBox x:Name="StrategiesListBox"
+                                     SelectionChanged="StrategiesListBox_SelectionChanged"
+                                     DisplayMemberPath="Summary"
+                                     BorderThickness="0"
+                                     Background="Transparent"/>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource PanelCardStyle}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top">
+                                <TextBlock FontSize="18" FontWeight="Bold" Text="Strategy Editor"/>
+                                <TextBlock Margin="0,10,0,4" Text="Strategy Name"/>
+                                <TextBox x:Name="StrategyNameTextBox" Height="32"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,6">
+                                    <Button Content="Add Rule" Click="AddRuleButton_Click"/>
+                                    <Button Content="Remove Rule" Click="RemoveRuleButton_Click"/>
+                                    <Button Content="Save Strategy"
+                                            Click="SaveStrategyButton_Click"
+                                            Background="#0E6BA8"
+                                            Foreground="White"
+                                            BorderBrush="#0D5E94"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <DataGrid x:Name="RulesDataGrid"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      Margin="0,6,0,0"
+                                      GridLinesVisibility="Horizontal"
+                                      HeadersVisibility="Column"
+                                      BorderBrush="#D7E2ED"
+                                      BorderThickness="1">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Rule ID" Binding="{Binding Id}" Width="110"/>
+                                    <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="180"/>
+                                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*"/>
+                                    <DataGridComboBoxColumn Header="Severity"
+                                                            Width="100"
+                                                            SelectedItemBinding="{Binding Severity, Mode=TwoWay}"
+                                                            ItemsSource="{Binding SeverityOptions, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                    <DataGridCheckBoxColumn Header="Required" Width="90" Binding="{Binding IsRequired}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

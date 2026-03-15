@@ -1,0 +1,57 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+
+# Local agent / editor folders
+.claude/
+.vscode/
+.idea/
+
+# GitHub and local environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.venv/
+venv/
+
+# Backend runtime data
+backend/storage/
+backend/.venv/
+backend/.pytest_cache/
+backend/app/__pycache__/
+backend/app/api/__pycache__/
+backend/app/services/__pycache__/
+backend/tests/__pycache__/
+
+# .NET / WPF
+*.user
+*.suo
+*.cache
+*.pdb
+*.ilk
+*.obj
+*.log
+*.vsidx
+*.snupkg
+*.nupkg
+ReviewPro/.vs/
+ReviewPro/**/bin/
+ReviewPro/**/obj/
+
+# Build verification artifacts
+ReviewPro/build-verify/

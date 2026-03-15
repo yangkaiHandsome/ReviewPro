@@ -1,0 +1,18 @@
+services:
+  reviewpro-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reviewpro-backend
+    restart: unless-stopped
+    ports:
+      - "18000:8000"
+    environment:
+      REVIEWPRO_DATABASE_URL: sqlite:////app/storage/reviewpro.db
+      REVIEWPRO_STORAGE_DIR: /app/storage
+      REVIEWPRO_LOG_LEVEL: INFO
+      REVIEWPRO_LLM_API_KEY: ""
+      REVIEWPRO_LLM_BASE_URL: https://coding.dashscope.aliyuncs.com/v1
+      REVIEWPRO_LLM_MODEL: qwen3.5-plus
+    volumes:
+      - ./storage:/app/storage

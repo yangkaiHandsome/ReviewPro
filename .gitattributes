@@ -1,0 +1,16 @@
+* text=auto
+
+*.sln text eol=crlf
+*.cs text eol=crlf
+*.csproj text eol=crlf
+*.xaml text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.bmp binary
+*.tif binary
+*.tiff binary
+*.pdf binary
+*.dll binary
+*.pdb binary
